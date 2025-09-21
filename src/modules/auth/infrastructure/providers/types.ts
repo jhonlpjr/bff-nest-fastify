@@ -1,0 +1,1 @@
+export const AUTH_HTTP_ADAPTER = 'AuthHttpAdapter';
