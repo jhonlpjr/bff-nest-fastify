@@ -11,10 +11,18 @@ describe('VerifyMfaUseCase', () => {
   });
 
   it('should call AuthApiPort.verifyMfa', async () => {
-    authApi.verifyMfa.mockResolvedValue({ verified: true });
+    authApi.verifyMfa.mockResolvedValue({
+      accessToken: 'at',
+      refreshToken: 'rt',
+      expiresIn: 123,
+      scope: 'openid',
+      aud: 'aud',
+      userId: 'user1',
+      tokenType: 'Bearer',
+    });
     const params = { token: '123456', login_tx: 'tx1' };
     const result = await useCase.execute(params);
     expect(authApi.verifyMfa).toHaveBeenCalledWith(params);
-    expect(result).toEqual({ verified: true });
+    expect(result).toMatchObject({ accessToken: 'at', userId: 'user1' });
   });
 });

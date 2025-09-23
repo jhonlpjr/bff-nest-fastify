@@ -1,12 +1,14 @@
-version: '3.8'
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: bff-redis
-    restart: unless-stopped
-    ports:
-      - '6379:6379'
+  bff:
+    image: node:24-alpine
+    container_name: bff
+    working_dir: /app
     volumes:
-      - redis_data:/data
-volumes:
-  redis_data:
+      - ./:/app
+    command: sh -c "rm -rf node_modules package-lock.json && npm install && npm run build && npm run start"
+    ports:
+      - "6020:6050"
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

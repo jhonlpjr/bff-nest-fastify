@@ -1,224 +1,313 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 
 # BFF NestJS + Fastify (Clean Architecture)
 
-## Features
-- BFF (Backend For Frontend) para microservicios Auth (Koa) y Movies (.NET)
-- Clean Architecture estricta (domain, application, infrastructure, api)
-- Sesión opaca en Redis (__Host-session)
-- CSRF protection (double-submit + Origin/Referer)
-- Proxy seguro a API Movies
-- Seguridad: cookies HttpOnly/SameSite, headers, rate-limit
+Robust Backend For Frontend (BFF) for authentication and secure proxy, using NestJS + Fastify, Clean Architecture, Docker, and automated tests.
+
+## Main Features
+- Strict Clean Architecture: domain, application, infrastructure, interface/http
+- Auth Endpoints: login, refresh, logout, logout-all (with JWT, signed cookies, optional MFA)
+- Secure proxy to external microservices (e.g., Movies API)
+- Security: HttpOnly/SameSite cookies, CORS, rate-limit, secure headers
+- Docker-ready, validated environment variables
+- Unit and e2e tests with automatic mocking of external services
 
 ## Folder Structure
 
-```
-domain/
-  entities/Session.ts
-application/
-  ports/         # interfaces (SessionRepository, AuthProvider, ApiGateway, ...)
-  use-cases/     # LoginUseCase, RefreshUseCase, ...
-infrastructure/
-  repositories/  # RedisSessionRepository
-  providers/     # HttpAuthProvider, HttpApiGateway, CsrfServiceImpl
-  config/env.ts  # env loader
-api/
-  controllers/   # AuthController, MoviesController
-  guards/        # SessionGuard, CsrfGuard
-  dtos/          # LoginDto, ...
-  http.module.ts # bindings
-docker-compose.yml
+```text
+└── 📁src
+  └── 📁common
+    └── 📁api
+      └── 📁responses
+        ├── create-response.ts
+        ├── error-response.ts
+        ├── ok-response.ts
+    └── 📁config
+      ├── app.config.ts
+      ├── env.config.ts
+    └── 📁constants
+      ├── environments.constants.ts
+      ├── headers.constants.ts
+      ├── keys.constants.ts
+      ├── status-codes.constants.ts
+    └── 📁cookies
+      ├── cookies.service.ts
+    └── 📁decorators
+      ├── bearer-token.decorator.ts
+      ├── custom-headers.decorator.ts
+      ├── user-logged.decorator.ts
+    └── 📁dtos
+    └── 📁enums
+      ├── environments.enum.ts
+    └── 📁errors
+      ├── error.mapper.ts
+      ├── global-http-exception.filter.ts
+      ├── http-exception.filter.ts
+    └── 📁exceptions
+      ├── bad-request-error.ts
+      ├── conflict-error.ts
+      ├── database-error.ts
+      ├── forbidden-error.ts
+      ├── index.ts
+      ├── internal-server-error.ts
+      ├── not-found-error.ts
+      ├── too-many-requests-error.ts
+      ├── unauthorized-error.ts
+      ├── validation-error.ts
+    └── 📁guards
+      ├── jwt.guard.ts
+      ├── mfa.guard.ts
+    └── 📁interceptors
+      ├── auth-cookies.interceptor.ts
+      ├── index.ts
+      ├── logging.interceptor.ts
+      ├── response-mapping.interceptor.ts
+      ├── timeout.interceptor.ts
+    └── 📁mappers
+      ├── response.mapper.ts
+    └── 📁pipes
+      ├── validation.pipe.ts
+    └── 📁providers
+      ├── common.providers.ts
+    └── 📁rate-limit
+      ├── throttler.config.ts
+    └── 📁services
+      ├── jwks.service.ts
+      ├── secret-manager.service.ts
+      ├── secrets-bootstrap.service.ts
+    └── 📁utils
+      ├── extract-bearer-token.util.ts
+      ├── extract-headers.util.ts
+  └── 📁modules
+    └── 📁auth
+      └── 📁application
+        └── 📁dtos
+          └── 📁params
+            ├── login.params.ts
+            ├── logout.params.ts
+            ├── mfa-verify.params.ts
+            ├── refresh.params.ts
+            ├── setup-totp.params.ts
+            ├── totp-activate.params.ts
+          └── 📁results
+            ├── activate-totpt.result.ts
+            ├── login.result.ts
+            ├── mfa-login.result.ts
+            ├── revoke.result.ts
+            ├── setup-totp.result.ts
+        └── 📁functions
+          ├── login.functions.ts
+        └── 📁mappers
+          ├── activate-totp.mapper.ts
+          ├── login.mapper.ts
+          ├── verify-mfa.mapper.ts
+        └── 📁ports
+          └── 📁requests
+            ├── activate-totp-port.request.ts
+            ├── login-port.request.ts
+            ├── refresh-token-port.request.ts
+            ├── revoke-port.request.ts
+            ├── setup-totp-port.request.ts
+            ├── verify-mfa-port.request.ts
+          └── 📁responses
+            ├── activate-totp-port.res.ts
+            ├── auth-service-port.res.ts
+            ├── login-port.res.ts
+            ├── mfa-login-port.res.ts
+            ├── revoke-port.res.ts
+            ├── setup-totp-port.res.ts
+          ├── auth-api.port.ts
+        └── 📁use-cases
+          ├── activate-totp.use-case.ts
+          ├── login.use-case.ts
+          ├── logout-all.use-case.ts
+          ├── logout.use-case.ts
+          ├── refresh.use-case.ts
+          ├── setup-totp.use-case.ts
+          ├── verify-mfa.use-case.ts
+      └── 📁domain
+        └── 📁entities
+          ├── login-tx.vo.ts
+      └── 📁infrastructure
+        └── 📁adapters
+          └── 📁http
+            ├── auth-api.http.adapter.mock.ts
+            ├── auth-api.http.adapter.ts
+            ├── auth-api.interceptor.ts
+        └── 📁mappers
+        └── 📁providers
+          ├── auth.providers.ts
+          ├── types.ts
+      └── 📁interface
+        └── 📁http
+          └── 📁dtos
+            └── 📁requests
+              ├── login-request.dto.ts
+              ├── logout-all-request.dto.ts
+              ├── logout-request.dto.ts
+              ├── mfa-verify-request.dto.ts
+              ├── refresh-request.dto.ts
+              ├── setup-totp-request.dto.ts
+              ├── totp-activate-request.dto.ts
+            └── 📁responses
+              ├── activate-totp.res.dto.ts
+              ├── login.res.dto.ts
+              ├── mfa-login.res.dto.ts
+              ├── setup-totp.res.dto.ts
+              ├── success.res.dto.ts
+              ├── verify-mfa.res.dto.ts
+          └── 📁mappers
+            ├── activate-totp-request.mapper.ts
+            ├── api-login.mapper.ts
+            ├── api-logout.mapper.ts
+            ├── api-refresh.mapper.ts
+            ├── logout-all-request.mapper.ts
+            ├── logout-request.mapper.ts
+            ├── setup-totp-request.mapper.ts
+          ├── auth.controller.ts
+      ├── auth.module.ts
+    └── 📁health
+      ├── health.controller.ts
+      ├── health.module.ts
+  ├── app.module.ts
+  ├── main.ts
+  └── pre-bootstrap.ts
 ```
 
-## Setup
+## Installation & Environment
 
-1. Copia `.env.example` a `.env` y configura:
-   - AUTH_BASE_URL=https://auth.midominio.com
-   - API_BASE_URL=https://api.midominio.com
-   - REDIS_URL=redis://localhost:6379
-   - SESSION_TTL_MIN=60
-   - ALLOWED_ORIGINS=https://app.midominio.com
-   - NODE_ENV=development
-2. Instala dependencias:
+1. Copy `.env.example` to `.env` and set your endpoints and secrets:
+   - AUTH_BASE_URL=http://localhost:6010/api/v1
+   - COOKIE_SECRET=your-secret
+   - COOKIE_DOMAIN=localhost
+   - CORS_ORIGINS=http://localhost:3000
+   - AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (if using AWS)
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Levanta Redis:
+3. (Optional) Start Redis/localstack if you use sessions/AWS:
    ```bash
    docker compose up -d redis
    ```
 
-## Run
+## Running
 
 ```bash
 # development
 npm run start:dev
 # production
 npm run start:prod
+# debug
+npm run start:debug
 ```
 
-## API Routes
+## Main Endpoints
 
-| Route                        | Method | CSRF | Description                       |
-|------------------------------|--------|------|-----------------------------------|
-| /auth/login                  | POST   | No   | Login (step: mfa o done)          |
-| /auth/logout                 | POST   | No   | Logout                            |
-| /api/movies                  | GET    | No   | List movies                       |
-| /api/movies                  | POST   | Yes  | Create movie                      |
-| /api/movies/:id              | GET    | No   | Get movie by id                   |
-| /api/movies/:id              | PATCH  | Yes  | Update movie                      |
-| /api/movies/:id              | DELETE | Yes  | Delete movie                      |
-| /api/movies/search           | GET    | No   | Search movies (query passthrough) |
-| /api/movies/popular          | GET    | No   | Popular movies                    |
-| /api/movies/recommendations  | GET    | No   | Recommendations                   |
+| Path                | Method | Description                  | Auth |
+|---------------------|--------|------------------------------|------|
+| /auth/login         | POST   | User login/MFA               | No   |
+| /auth/refresh       | POST   | Refresh token                | No   |
+| /auth/logout        | POST   | User logout                  | Yes  |
+| /auth/logout-all    | POST   | Logout all sessions          | Yes  |
 
-## Security Notes
-- Cookies: __Host-session (HttpOnly, Secure, SameSite=Strict), XSRF-TOKEN (no HttpOnly, SameSite=Lax)
-- CSRF: double-submit + Origin/Referer, solo en mutaciones
-- CORS: solo si frontend y BFF son orígenes distintos (ALLOWED_ORIGINS)
-- Headers: HSTS, X-Content-Type-Options, Referrer-Policy, frame-ancestors, CSP (si HTML)
+## Security
+- Signed cookies (uid, refreshToken) with HttpOnly, Secure, SameSite
+- JWT ES256, validation with JWKS
+- Global and per-endpoint rate-limit
+- CORS configurable by environment
+- Secure headers (HSTS, X-Content-Type-Options, etc)
 
-## Roadmap
-- [x] Clean Architecture base
-- [x] Redis session opaca
-- [x] CSRF protection
-- [x] Proxy seguro a API Movies
-- [ ] MFA/WebAuthn (TODO)
+## Environment Variables
+Example `.env`:
+```env
+PORT=6020
+AUTH_BASE_URL=http://localhost:6010/api/v1
+COOKIE_SECRET=kmfps124ak1mfps124a
+COOKIE_DOMAIN=localhost
+COOKIE_SAMESITE=lax
+CORS_ORIGINS=http://localhost:3000
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=xxxx
+AWS_SECRET_ACCESS_KEY=xxxx
+HTTP_REQUEST_TIMEOUT=5000
+```
 
-## curl Examples
+## Docker
 
-### Login (recibir cookies)
 ```bash
-curl -i -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"user","password":"pass"}'
-# Si requiere MFA: { step: "mfa" }
-# Si OK: 204 + Set-Cookie: __Host-session, XSRF-TOKEN
+docker compose up --build
 ```
-
-### GET /api/movies (requiere sesión)
-```bash
-curl -i http://localhost:3000/api/movies \
-  --cookie "__Host-session=..."
-# 200 OK, proxy a API
+Example `docker-compose.yml`:
+```yaml
+services:
+  bff:
+    image: node:24-alpine
+    container_name: bff
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "rm -rf node_modules package-lock.json && npm install && npm run build && npm run start"
+    ports:
+      - "6020:6050"
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 ```
-
-### POST /api/movies sin X-XSRF-TOKEN (debe fallar)
-```bash
-curl -i -X POST http://localhost:3000/api/movies \
-  --cookie "__Host-session=..." \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Test Movie"}'
-# 403 Forbidden
-```
-
-### POST /api/movies con X-XSRF-TOKEN (mock 201)
-```bash
-curl -i -X POST http://localhost:3000/api/movies \
-  --cookie "__Host-session=...; XSRF-TOKEN=..." \
-  -H "Content-Type: application/json" \
-  -H "X-XSRF-TOKEN: ..." \
-  -d '{"title":"Test Movie"}'
-# 201 Created (mock)
-```
-
----
 
 ## Tests
 
-- Unit: LoginUseCase y ProxyUseCase con mocks de puertos
-- E2E: login espera cookies, POST /api/movies sin X-XSRF-TOKEN → 403, con X-XSRF-TOKEN → 201, GET /api/movies → 200
+- Unit: `npm run test:unit` (use-cases, mappers, guards)
+- E2E: `npm run test:e2e` (login, refresh, logout, MFA, TOTP, guards)
+  - E2E tests use an automatic mock of the external adapter if `NODE_ENV=test` (no real backend required)
+  - **Recommended:** use the `.env.test` file already included in the project for e2e, with dummy and safe values. If you prefer, you can create your own `.env.test` with any values you want.
 
-## Project setup
+## Automatic Mock in E2E
+When you run `npm run test:e2e`, the Auth adapter is replaced by a mock that returns valid data for login, refresh, MFA, TOTP, etc. This allows e2e tests to pass without relying on external services or real credentials. You only need to have `.env.test` configured (already included in the repo).
 
-```bash
-$ npm install
-```
+## Main Endpoints
 
-## Compile and run the project
+| Path                        | Method | Description                        | Auth |
+|-----------------------------|--------|------------------------------------|------|
+| /auth/login                 | POST   | User login/MFA                     | No   |
+| /auth/refresh               | POST   | Refresh token                      | No   |
+| /auth/mfa/verify            | POST   | Verify MFA                         | No   |
+| /auth/mfa/totp/setup        | POST   | Setup TOTP (QR/secret)             | Yes  |
+| /auth/mfa/totp/activate     | POST   | Activate TOTP                      | Yes  |
+| /auth/logout                | POST   | User logout                        | Yes  |
+| /auth/logout-all            | POST   | Logout all sessions                | Yes  |
+| /health                     | GET    | Healthcheck                        | No   |
 
-```bash
-# development
-$ npm run start
+### Quick Endpoint Descriptions
+- **/auth/login**: Login, may require MFA.
+- **/auth/refresh**: Refreshes the access token using cookies.
+- **/auth/mfa/verify**: Verifies MFA code (TOTP/SMS).
+- **/auth/mfa/totp/setup**: Generates QR/secret for TOTP.
+- **/auth/mfa/totp/activate**: Activates TOTP for the user.
+- **/auth/logout**: Ends current session.
+- **/auth/logout-all**: Ends all user sessions.
+- **/health**: Endpoint for monitoring/infrastructure.
 
-# watch mode
-$ npm run start:dev
+## Swagger Documentation
 
-# production mode
-$ npm run start:prod
-```
+- The API exposes interactive Swagger documentation at:
+  - **http://localhost:6020/api/docs**
+- You can test all endpoints, view request/response models, and copy examples directly from the Swagger UI.
+- Swagger is automatically updated with DTOs and contracts defined in the code.
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
 ## Resources
+- [NestJS Docs](https://docs.nestjs.com)
+- [Fastify Docs](https://www.fastify.io/docs/latest/)
+- [Clean Architecture](https://github.com/ardalis/CleanArchitecture)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Author & Contact
+- Author: Jhon L. P. Jr.
+- Email: jhonlpjr@gmail.com
+- LinkedIn: [linkedin.com/in/jhonlpjr](https://linkedin.com/in/jhonlpjr)
+- GitHub: [github.com/jhonlpjr](https://github.com/jhonlpjr)
 
 ## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT

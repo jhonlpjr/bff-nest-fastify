@@ -1,48 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { Response, Request } from 'express';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ConfigService } from '@nestjs/config';
 import * as cookie from 'cookie';
+import { REFRESH_TOKEN } from '../constants/keys.constants';
 
 @Injectable()
 export class CookiesService {
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) { }
 
-  private getRefreshCookieName() {
-    return this.config.get('REFRESH_COOKIE_NAME', 'refreshToken');
+
+  setRefreshToken(res: FastifyReply, value: string) {
+    if (typeof res.setCookie === 'function') {
+      res.setCookie(REFRESH_TOKEN, value, {
+        httpOnly: true,
+        secure: this.config.get('COOKIE_SECURE', process.env.NODE_ENV !== 'development'),
+        sameSite: (this.config.get('COOKIE_SAMESITE', 'lax') as 'lax' | 'strict' | 'none'),
+        domain: this.config.get('COOKIE_DOMAIN'),
+        path: '/',
+        maxAge: this.config.get('REFRESH_COOKIE_MAX_AGE_MS') || undefined,
+      });
+    }
   }
 
-  setRefreshToken(res: Response, value: string) {
-    res.cookie(this.getRefreshCookieName(), value, {
-      httpOnly: true,
-      secure: this.config.get('COOKIE_SECURE', process.env.NODE_ENV !== 'development'),
-  sameSite: (this.config.get('COOKIE_SAMESITE', 'lax') as 'lax' | 'strict' | 'none'),
-      domain: this.config.get('COOKIE_DOMAIN'),
-      path: '/',
-      maxAge: this.config.get('REFRESH_COOKIE_MAX_AGE_MS') || undefined,
-    });
+  getRefreshToken(req: FastifyRequest): string | undefined {
+    return req.cookies?.[REFRESH_TOKEN];
   }
 
-  getRefreshToken(req: Request): string | undefined {
-    return req.cookies?.[this.getRefreshCookieName()];
+  setUid(res: FastifyReply, userId: string) {
+    if (typeof res.setCookie === 'function') {
+      res.setCookie('uid', userId, {
+        httpOnly: true,
+        signed: true,
+        secure: this.config.get('COOKIE_SECURE', process.env.NODE_ENV !== 'development'),
+        sameSite: (this.config.get('COOKIE_SAMESITE', 'lax') as 'lax' | 'strict' | 'none'),
+        domain: this.config.get('COOKIE_DOMAIN'),
+        path: '/',
+      });
+    }
   }
 
-  setUid(res: Response, userId: string) {
-    res.cookie('uid', userId, {
-      httpOnly: true,
-      signed: true,
-      secure: this.config.get('COOKIE_SECURE', process.env.NODE_ENV !== 'development'),
-  sameSite: (this.config.get('COOKIE_SAMESITE', 'lax') as 'lax' | 'strict' | 'none'),
-      domain: this.config.get('COOKIE_DOMAIN'),
-      path: '/',
-    });
+  getUid(req: FastifyRequest): string | undefined {
+    return req.cookies?.uid;
   }
 
-  getUid(req: Request): string | undefined {
-    return req.signedCookies?.uid || req.cookies?.uid;
-  }
-
-  clearAll(res: Response) {
-    res.clearCookie(this.getRefreshCookieName(), { path: '/' });
+  clearAll(res: FastifyReply) {
+    res.clearCookie(REFRESH_TOKEN, { path: '/' });
     res.clearCookie('uid', { path: '/' });
   }
 }

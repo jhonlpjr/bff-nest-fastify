@@ -3,7 +3,6 @@ import * as Joi from 'joi';
 
 export default registerAs('env', () => ({
   AUTH_BASE_URL: process.env.AUTH_BASE_URL,
-  BFF_CLIENT_KEY: process.env.BFF_CLIENT_KEY,
   COOKIE_DOMAIN: process.env.COOKIE_DOMAIN,
   COOKIE_SAMESITE: process.env.COOKIE_SAMESITE || 'lax',
   COOKIE_SECURE: process.env.COOKIE_SECURE === 'true',
@@ -14,7 +13,6 @@ export default registerAs('env', () => ({
 
 export const envValidationSchema = Joi.object({
   AUTH_BASE_URL: Joi.string().uri().required(),
-  BFF_CLIENT_KEY: Joi.string().required(),
   COOKIE_DOMAIN: Joi.string().optional(),
   COOKIE_SAMESITE: Joi.string().valid('lax', 'strict', 'none').default('lax'),
   COOKIE_SECURE: Joi.boolean().optional(),

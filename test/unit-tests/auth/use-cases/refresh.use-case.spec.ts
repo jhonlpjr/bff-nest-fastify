@@ -1,43 +1,35 @@
-import { RefreshUseCase } from '../../../../src/modules/auth/application/use-cases/refresh.use-case';
-import { AuthApiPort } from '../../../../src/modules/auth/application/ports/auth-api.port';
-import { CookiesService } from '../../../../src/common/cookies/cookies.service';
+import { AuthApiPort } from "../../../../src/modules/auth/application/ports/auth-api.port";
+import { RefreshUseCase } from "../../../../src/modules/auth/application/use-cases/refresh.use-case";
+
 
 describe('RefreshUseCase', () => {
   let useCase: RefreshUseCase;
   let authApi: jest.Mocked<AuthApiPort>;
-  let cookies: jest.Mocked<CookiesService>;
-  let req: any;
-  let res: any;
 
   beforeEach(() => {
     authApi = { refreshToken: jest.fn() } as any;
-    cookies = { getRefreshToken: jest.fn(), getUid: jest.fn(), setRefreshToken: jest.fn() } as any;
-    useCase = new RefreshUseCase(authApi, cookies);
-    req = {};
-    res = {};
+    useCase = new RefreshUseCase(authApi);
   });
 
-  it('should throw if no refreshToken or userId', async () => {
-    cookies.getRefreshToken.mockReturnValue(undefined);
-    cookies.getUid.mockReturnValue(undefined);
-    await expect(useCase.execute(req, res)).rejects.toThrow('Unauthorized');
+  it('should throw UnauthorizedError if no refreshToken or userId', async () => {
+    await expect(useCase.execute({})).rejects.toThrow('Invalid refresh token or user ID');
+    await expect(useCase.execute({ refreshToken: 'rt' })).rejects.toThrow('Invalid refresh token or user ID');
+    await expect(useCase.execute({ userId: 'user1' })).rejects.toThrow('Invalid refresh token or user ID');
   });
 
-  it('should call AuthApiPort.refreshToken and set cookie', async () => {
-    cookies.getRefreshToken.mockReturnValue('rt');
-    cookies.getUid.mockReturnValue('user1');
+  it('should call AuthApiPort.refreshToken with correct params', async () => {
     authApi.refreshToken.mockResolvedValue({
-      access_token: 'at',
-      refresh_token: 'rt2',
-      expires_in: 123,
+      accessToken: 'at',
+      refreshToken: 'rt2',
+      expiresIn: 123,
       scope: 'openid',
       aud: 'aud',
-      user_id: 'user1',
-      token_type: 'Bearer',
+      userId: 'user1',
+      tokenType: 'Bearer',
     });
-    const result = await useCase.execute(req, res);
+    const dto = { refreshToken: 'rt', userId: 'user1' };
+    const result = await useCase.execute(dto);
     expect(authApi.refreshToken).toHaveBeenCalledWith({ userId: 'user1', refreshToken: 'rt' });
-    expect(cookies.setRefreshToken).toHaveBeenCalledWith(res, 'rt2');
     expect(result).toMatchObject({ accessToken: 'at', userId: 'user1' });
   });
 });

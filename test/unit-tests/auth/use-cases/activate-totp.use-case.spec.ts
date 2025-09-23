@@ -1,5 +1,6 @@
-import { ActivateTotpUseCase } from '../../../../src/modules/auth/application/use-cases/activate-totp.use-case';
-import { AuthApiPort } from '../../../../src/modules/auth/application/ports/auth-api.port';
+import { AuthApiPort } from "../../../../src/modules/auth/application/ports/auth-api.port";
+import { ActivateTotpUseCase } from "../../../../src/modules/auth/application/use-cases/activate-totp.use-case";
+
 
 describe('ActivateTotpUseCase', () => {
   let useCase: ActivateTotpUseCase;
@@ -12,8 +13,8 @@ describe('ActivateTotpUseCase', () => {
 
   it('should call AuthApiPort.activateTotp', async () => {
     authApi.activateTotp.mockResolvedValue({ activated: true });
-    const result = await useCase.execute('access_token', 'token');
-    expect(authApi.activateTotp).toHaveBeenCalledWith('access_token', 'token');
+    const result = await useCase.execute({ token: 'token' });
+    expect(authApi.activateTotp).toHaveBeenCalledWith({ token: 'token' });
     expect(result).toEqual({ activated: true });
   });
 });

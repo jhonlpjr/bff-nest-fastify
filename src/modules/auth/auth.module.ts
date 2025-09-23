@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
 import { AuthController } from './interface/http/auth.controller';
 import { LoginUseCase } from './application/use-cases/login.use-case';
 import { RefreshUseCase } from './application/use-cases/refresh.use-case';
@@ -11,9 +10,9 @@ import { ActivateTotpUseCase } from './application/use-cases/activate-totp.use-c
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { LogoutAllUseCase } from './application/use-cases/logout-all.use-case';
 import { AuthProviders } from './infrastructure/providers/auth.providers';
-import { CookiesService } from 'src/common/cookies/cookies.service';
-import { AuthApiInterceptor } from './infrastructure/adapters/http/auth-api.interceptor';
-
+import { CookiesService } from '../../common/cookies/cookies.service';
+import { CommonProviders } from '../../common/providers/common.providers';
+import { ENV } from '../../common/constants/environments.constants';
 
 @Module({
   imports: [
@@ -22,13 +21,15 @@ import { AuthApiInterceptor } from './infrastructure/adapters/http/auth-api.inte
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        baseURL: config.get<string>('AUTH_BASE_URL'),
-        timeout: 5000,
+        baseURL: config.get<string>(ENV.AUTH_BASE_URL),
+        timeout: config.get<number>(ENV.HTTP_REQUEST_TIMEOUT),
       }),
     }),
   ],
   controllers: [AuthController],
   providers: [
+    ...AuthProviders,
+    ...CommonProviders,
     // Use-cases
     LoginUseCase,
     RefreshUseCase,
@@ -37,7 +38,6 @@ import { AuthApiInterceptor } from './infrastructure/adapters/http/auth-api.inte
     ActivateTotpUseCase,
     LogoutUseCase,
     LogoutAllUseCase,
-    ...AuthProviders,
     CookiesService,
   ],
   exports: [],

@@ -11,25 +11,23 @@ describe('LoginUseCase', () => {
   beforeEach(() => {
     authApi = { login: jest.fn() } as any;
     cookies = { setRefreshToken: jest.fn(), setUid: jest.fn() } as any;
-    useCase = new LoginUseCase(authApi, cookies);
+    useCase = new LoginUseCase(authApi);
     res = {};
   });
 
-  it('should call AuthApiPort.login and set cookies', async () => {
+  it('should call AuthApiPort.login and return result', async () => {
     authApi.login.mockResolvedValue({
-      access_token: 'at',
-      refresh_token: 'rt',
-      expires_in: 123,
+      accessToken: 'at',
+      refreshToken: 'rt',
+      expiresIn: 123,
       scope: 'openid',
       aud: 'aud',
-      user_id: 'user1',
-      token_type: 'Bearer',
+      userId: 'user1',
+      tokenType: 'Bearer',
     });
     const params = { username: 'foo', password: 'bar' };
-    const result = await useCase.execute(params, res);
+    const result = await useCase.execute(params);
     expect(authApi.login).toHaveBeenCalledWith(params);
-    expect(cookies.setRefreshToken).toHaveBeenCalledWith(res, 'rt');
-    expect(cookies.setUid).toHaveBeenCalledWith(res, 'user1');
     expect(result).toMatchObject({ accessToken: 'at', userId: 'user1' });
   });
 });

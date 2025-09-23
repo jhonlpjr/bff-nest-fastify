@@ -8,5 +8,6 @@
   },
   "collectCoverageFrom": ["**/*.(t|j)s"],
   "coverageDirectory": "../coverage/unit",
-  "testEnvironment": "node"
+  "testEnvironment": "node",
+  "moduleDirectories": ["node_modules", "src"]
 }

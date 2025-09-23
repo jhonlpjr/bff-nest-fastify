@@ -12,8 +12,8 @@ describe('SetupTotpUseCase', () => {
 
   it('should call AuthApiPort.setupTotp', async () => {
     authApi.setupTotp.mockResolvedValue({ otpauthUrl: 'otpauth://totp/issuer:user?secret=ABC' });
-    const result = await useCase.execute('access_token');
-    expect(authApi.setupTotp).toHaveBeenCalledWith('access_token');
+    const result = await useCase.execute({ accessToken: 'access_token' });
+    expect(authApi.setupTotp).toHaveBeenCalledWith({ accessToken: 'access_token' });
     expect(result).toEqual({ otpauthUrl: 'otpauth://totp/issuer:user?secret=ABC' });
   });
 });

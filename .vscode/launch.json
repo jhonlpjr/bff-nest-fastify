@@ -8,8 +8,14 @@
       "type": "node",
       "request": "launch",
       "name": "NestJS Debug",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
+      "runtimeExecutable": "ts-node",
+      "runtimeArgs": [
+        "--transpile-only",
+        "-r",
+        "tsconfig-paths/register",
+        "--inspect-brk",
+        "start-dev.ts"
+      ],
       "restart": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

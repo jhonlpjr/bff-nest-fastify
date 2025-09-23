@@ -1,9 +1,21 @@
+
+import { SetupTotpParams } from '../dtos/params/setup-totp.params';
 import { AuthApiPort } from '../ports/auth-api.port';
+import { Inject } from '@nestjs/common';
+import { AUTH_HTTP_ADAPTER } from '../../infrastructure/providers/types';
+
 
 export class SetupTotpUseCase {
-  constructor(private readonly authApi: AuthApiPort) {}
+  constructor(
+    @Inject(AUTH_HTTP_ADAPTER)
+    private readonly authApi: AuthApiPort,
+  ) {}
 
-  async execute(accessToken: string) {
-    return this.authApi.setupTotp(accessToken);
+  async execute(params: SetupTotpParams) {
+    try {
+      return await this.authApi.setupTotp(params);
+    } catch (error) {
+      throw error;
+    }
   }
 }
